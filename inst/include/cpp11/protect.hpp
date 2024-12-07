@@ -247,14 +247,10 @@ void stop [[noreturn]] (const std::string& fmt_arg, Args&&... args) {
   safe.noreturn(Rf_errorcall)(R_NilValue, "%s", msg.c_str());
 }
 
-template <typename... Args>
-void warning(const char* fmt_arg, Args&&... args) {
-  std::string msg = fmt::format(fmt::runtime(fmt_arg), std::forward<Args>(args)...);
-  safe[Rf_warningcall](R_NilValue, "%s", msg.c_str());
-}
+// Always making a copy of the string to avoid weird unwind behavior.
 
 template <typename... Args>
-void warning(const std::string& fmt_arg, Args&&... args) {
+void warning(const std::string fmt_arg, Args&&... args) {
   std::string msg = fmt::format(fmt::runtime(fmt_arg), std::forward<Args>(args)...);
   safe[Rf_warningcall](R_NilValue, "%s", msg.c_str());
 }
@@ -269,13 +265,10 @@ void stop [[noreturn]] (const std::string& fmt, Args... args) {
   safe.noreturn(Rf_errorcall)(R_NilValue, fmt.c_str(), args...);
 }
 
-template <typename... Args>
-void warning(const char* fmt, Args... args) {
-  safe[Rf_warningcall](R_NilValue, fmt, args...);
-}
+// Always making a copy of the string to avoid weird unwind behavior.
 
 template <typename... Args>
-void warning(const std::string& fmt, Args... args) {
+void warning(const std::string fmt, Args... args) {
   safe[Rf_warningcall](R_NilValue, fmt.c_str(), args...);
 }
 #endif
