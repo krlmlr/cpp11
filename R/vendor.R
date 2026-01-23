@@ -30,11 +30,15 @@
 #'
 #' # cleanup
 #' unlink(dir, recursive = TRUE)
-cpp_vendor <- function(path = ".") {
+cpp_vendor <- function(path = ".", date = Sys.Date(), overwrite = FALSE) {
   new <- file.path(path, "inst", "include", "cpp11")
 
   if (dir.exists(new)) {
-    stop("'", new, "' already exists\n * run unlink('", new, "', recursive = TRUE)", call. = FALSE)
+    if (overwrite) {
+      unlink(new, recursive = TRUE)
+    } else {
+      stop("'", new, "' already exists\n * run unlink('", new, "', recursive = TRUE)", call. = FALSE)
+    }
   }
 
   dir.create(new , recursive = TRUE, showWarnings = FALSE)
@@ -46,7 +50,7 @@ cpp_vendor <- function(path = ".") {
 
   cpp11_version <- utils::packageVersion("cpp11")
 
-  cpp11_header <- sprintf("// cpp11 version: %s\n// vendored on: %s", cpp11_version, Sys.Date())
+  cpp11_header <- sprintf("// cpp11 version: %s\n// vendored on: %s", cpp11_version, as.Date(date))
 
   files <- list.files(current, full.names = TRUE)
 
