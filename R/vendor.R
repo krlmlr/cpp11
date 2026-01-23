@@ -16,6 +16,11 @@
 #' code until you run `cpp_vendor()` again.
 #'
 #' @inheritParams cpp_register
+#' @param date The date recorded in the `vendored on:` header of each vendored
+#'   file. Defaults to the current date; pass a fixed date to make vendoring
+#'   reproducible.
+#' @param overwrite If `TRUE`, an existing vendored copy is removed first
+#'   instead of raising an error.
 #' @return The file path to the vendored code (invisibly).
 #' @export
 #' @examples
@@ -30,18 +35,22 @@
 #'
 #' # cleanup
 #' unlink(dir, recursive = TRUE)
-cpp_vendor <- function(path = ".") {
+cpp_vendor <- function(path = ".", date = Sys.Date(), overwrite = FALSE) {
   new <- file.path(path, "inst", "include", "cpp11")
 
   if (dir.exists(new)) {
-    stop(
-      "'",
-      new,
-      "' already exists\n * run unlink('",
-      new,
-      "', recursive = TRUE)",
-      call. = FALSE
-    )
+    if (overwrite) {
+      unlink(new, recursive = TRUE)
+    } else {
+      stop(
+        "'",
+        new,
+        "' already exists\n * run unlink('",
+        new,
+        "', recursive = TRUE)",
+        call. = FALSE
+      )
+    }
   }
 
   dir.create(new, recursive = TRUE, showWarnings = FALSE)
@@ -56,7 +65,7 @@ cpp_vendor <- function(path = ".") {
   cpp11_header <- sprintf(
     "// cpp11 version: %s\n// vendored on: %s",
     cpp11_version,
-    Sys.Date()
+    as.Date(date)
   )
 
   files <- list.files(current, full.names = TRUE)

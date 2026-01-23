@@ -4,10 +4,17 @@
 \alias{cpp_vendor}
 \title{Vendor the cpp11 dependency}
 \usage{
-cpp_vendor(path = ".")
+cpp_vendor(path = ".", date = Sys.Date(), overwrite = FALSE)
 }
 \arguments{
 \item{path}{The path to the package root directory}
+
+\item{date}{The date recorded in the \code{vendored on:} header of each vendored
+file. Defaults to the current date; pass a fixed date to make vendoring
+reproducible.}
+
+\item{overwrite}{If \code{TRUE}, an existing vendored copy is removed first
+instead of raising an error.}
 }
 \value{
 The file path to the vendored code (invisibly).
