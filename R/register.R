@@ -114,17 +114,28 @@ cpp_register <- function(
     )
   }
 
+  pkg_types_name <- paste0(package, c("_types.h", "_types.hpp"))
+
   pkg_types <- c(
-    file.path(path, "src", paste0(package, "_types.h")),
-    file.path(path, "src", paste0(package, "_types.hpp")),
-    file.path(path, "inst", "include", paste0(package, "_types.h")),
-    file.path(path, "inst", "include", paste0(package, "_types.hpp"))
+    file.path(path, "src", pkg_types_name),
+    file.path(path, "src", "include", pkg_types_name),
+    file.path(path, "inst", "include", pkg_types_name)
+  )
+
+  # `src/cpp11.cpp` is generated next to the `src/` copies and compiled from
+  # `src/`, so a header in `src/include/` is included through that directory.
+  # A package keeping its own headers private this way then needs no include
+  # flag for them, and none of the other two locations changes.
+  pkg_types_include <- c(
+    pkg_types_name,
+    file.path("include", pkg_types_name),
+    pkg_types_name
   )
 
   pkg_types_exist <- file.exists(pkg_types)
   if (any(pkg_types_exist)) {
     extra_includes <- c(
-      sprintf('#include "%s"', basename(pkg_types[pkg_types_exist])),
+      sprintf('#include "%s"', pkg_types_include[pkg_types_exist]),
       extra_includes
     )
   }

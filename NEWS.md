@@ -1,5 +1,7 @@
 # cpp11 (development version)
 
+* `cpp_register()` now also picks up a `{package}_types.h` or `{package}_types.hpp` in `src/include/`, letting a package keep that header private instead of installing it from `inst/include/`.
+
 # cpp11 0.5.5
 
 * Fixed an issue where `cpp11::stop()` and `cpp11::warning()` calls with the same template instantiation could cause a crash on some systems (#491, #295).
