@@ -1,0 +1,63 @@
+name: Patchstack sync
+
+# Rebuilds `fork` -- this repository's default branch -- as `main` plus the
+# squashed patch stack, replaying every patch branch onto `main` first.
+#
+# `main` is a 1:1 mirror of r-lib/cpp11, hard-reset by the Pull app
+# (see .github/pull.yml), so it is the upstream this sync tracks and there is no
+# second remote to fetch. The patch branches are the `b-*` (bug fix) and `f-*`
+# (feature) branches; everything else in this repository is left alone.
+#
+# The push needs a token that may write workflow files, because `fork` carries
+# this file and .github/pull.yml through the `a-fork-infra` patch. GITHUB_TOKEN
+# may not, and it only matters when their content changes -- a sync that leaves
+# them untouched goes through with the default token. Set PATCHSTACK_TOKEN to a
+# fine-grained PAT with Contents: read and write and Workflows: read and write
+# to make the exception unnecessary.
+
+on:
+  schedule:
+    # Off the hour: runs scheduled at :00 queue behind everyone else's.
+    - cron: "23 4 * * *"
+  workflow_dispatch:
+  repository_dispatch:
+    types: [main-updated]
+
+concurrency:
+  group: patchstack-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: Rebuild the fork branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out this repository
+        uses: actions/checkout@v6
+        with:
+          # The replay needs every patch branch's history; blobs come on demand.
+          fetch-depth: 0
+          filter: blob:none
+          token: ${{ secrets.PATCHSTACK_TOKEN || github.token }}
+
+      - name: Check out patchstack
+        uses: actions/checkout@v6
+        with:
+          repository: krlmlr/patchstack
+          path: .patchstack
+          persist-credentials: false
+
+      - name: Sync
+        uses: ./.patchstack
+        with:
+          main_branch: fork
+          upstream_branch: main
+          patch_glob: "b-* f-*"

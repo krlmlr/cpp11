@@ -6,9 +6,11 @@
 # usethis::use_github_action("check-standard") will install it.
 on:
   push:
-    branches: [main, master]
+    # `fork` is this fork's integration branch, rebuilt from `main` plus the
+    # patch stack; checking it is what says the stack still builds.
+    branches: [main, master, fork]
   pull_request:
-    branches: [main, master]
+    branches: [main, master, fork]
 
 name: R-CMD-check
 
