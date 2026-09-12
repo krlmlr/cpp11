@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>A C++11 Interface for R's C Interface • cpp11</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/Source_Sans_Pro-0.4.10/font.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/Source_Sans_Pro-0.4.10/font.css" rel="stylesheet">
 <link href="deps/Source_Code_Pro-0.4.10/font.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="index.html">cpp11</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.5.3.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.5.5.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,7 +72,7 @@
 </h2>
 <p>To add cpp11 to an existing package, put your C++ files in the <code>src/</code> directory and add the following to your DESCRIPTION file:</p>
 <pre><code><span><span class="va">LinkingTo</span><span class="op">:</span> <span class="va">cpp11</span></span></code></pre>
-<p>Then decorate C++ functions you want to expose to R with <code>[[cpp11::register]]</code>. <em>Note that this is a <a href="https://en.cppreference.com/w/cpp/language/attributes.html" class="external-link">C++11 attribute</a>, not a comment like is used in Rcpp.</em></p>
+<p>Then decorate C++ functions you want to expose to R with <code>[[cpp11::register]]</code>. <em>Note that this is a <a href="https://en.cppreference.com/cpp/language/attributes.html" class="external-link">C++11 attribute</a>, not a comment like is used in Rcpp.</em></p>
 <p>cpp11 is a header only library with no hard dependencies and does not use a shared library, so it is straightforward and reliable to use in packages without fear of compile-time and run-time mismatches.</p>
 <p>Alternatively, you can <a href="https://cpp11.r-lib.org/articles/motivations.html#vendoring">vendor</a> the current installed version of cpp11 headers into your package with <code>cpp11::vendor_cpp11()</code>. This ensures the headers will remain unchanged until you explicitly update them.</p>
 </div>
@@ -207,7 +207,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
   </div></footer>
