@@ -4,10 +4,28 @@
 \alias{cpp_vendor}
 \title{Vendor the cpp11 dependency}
 \usage{
-cpp_vendor(path = ".")
+cpp_vendor(
+  path = ".",
+  ...,
+  subdir = file.path("inst", "include"),
+  date = Sys.Date(),
+  overwrite = FALSE
+)
 }
 \arguments{
 \item{path}{The path to the package root directory}
+
+\item{...}{These dots are for future extensions and must be empty.}
+
+\item{subdir}{The directory below \code{path} to vendor into, as a path relative
+to \code{path}. Defaults to \code{inst/include}, which installs the headers.}
+
+\item{date}{The date recorded in the \code{vendored on:} header of each vendored
+file. Defaults to the current date; pass a fixed date to make vendoring
+reproducible.}
+
+\item{overwrite}{If \code{TRUE}, an existing vendored copy is removed first
+instead of raising an error.}
 }
 \value{
 The file path to the vendored code (invisibly).
@@ -21,6 +39,12 @@ This function vendors cpp11 into your package by copying the cpp11
 headers into the \code{inst/include} folder of your package and adding
 'cpp11 version: XYZ' to the top of the files, where XYZ is the version of
 cpp11 currently installed on your machine.
+
+Pass \code{subdir} to vendor somewhere else. A package that does not want the
+headers installed can keep them under \code{src/}, which leaves nothing of cpp11
+in the installed package; the generated \code{src/cpp11.cpp} reaches them by a
+path relative to \code{src/}, so only that package's own \code{PKG_CPPFLAGS} needs to
+know where they are.
 
 If you choose to vendor the headers you should \emph{remove} \code{LinkingTo: cpp11} from your DESCRIPTION.
 
