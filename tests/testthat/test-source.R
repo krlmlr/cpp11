@@ -14,7 +14,9 @@ test_that("cpp_source works with the `code` parameter", {
       }
       return total;
     }
-    ', clean = TRUE)
+    ',
+    clean = TRUE
+  )
   on.exit(dyn.unload(dll_info[["path"]]))
 
   expect_equal(num_odd(as.integer(c(1:10, 15, 23))), 7)
@@ -28,7 +30,9 @@ test_that("cpp_source works with the `file` parameter", {
     bool always_true() {
       return true;
     }
-    ", tf)
+    ",
+    tf
+  )
   on.exit(unlink(tf))
 
   dll_info <- cpp_source(tf, clean = TRUE, quiet = TRUE)
@@ -45,7 +49,9 @@ test_that("cpp_source works with files called `cpp11.cpp`", {
     bool always_true() {
       return true;
     }
-    ", tf)
+    ",
+    tf
+  )
   on.exit(unlink(tf))
 
   dll_info <- cpp_source(tf, clean = TRUE, quiet = TRUE)
@@ -54,15 +60,33 @@ test_that("cpp_source works with files called `cpp11.cpp`", {
   expect_true(always_true())
 })
 
-test_that("cpp_source returns original file name on error", {
+test_that("cpp_source works with multiple `file`s", {
+  skip_on_os("solaris")
 
-  expect_output(try(cpp_source(test_path("single_error.cpp"), clean = TRUE), silent = TRUE),
-               normalizePath(test_path("single_error.cpp"), winslash = "/"), fixed = TRUE)
+  dll_info <- cpp_source(test_path(
+    "fixtures",
+    "test-two-files",
+    c("one.cpp", "two.cpp")
+  ))
+  on.exit(dyn.unload(dll_info[["path"]]), add = TRUE)
+
+  expect_identical(foo(), 1L)
+  expect_identical(bar(), 1)
+})
+
+test_that("cpp_source returns original file name on error", {
+  expect_output(
+    try(cpp_source(test_path("single_error.cpp"), clean = TRUE), silent = TRUE),
+    normalizePath(test_path("single_error.cpp"), winslash = "/"),
+    fixed = TRUE
+  )
 
   #error generated for incorrect attributes is separate from compilation errors
-  expect_error(cpp_source(test_path("single_incorrect.cpp"), clean = TRUE),
-                normalizePath(test_path("single_incorrect.cpp"), winslash = "/"), fixed = TRUE)
-
+  expect_error(
+    cpp_source(test_path("single_incorrect.cpp"), clean = TRUE),
+    normalizePath(test_path("single_incorrect.cpp"), winslash = "/"),
+    fixed = TRUE
+  )
 })
 
 test_that("cpp_source lets you set the C++ standard", {
@@ -77,7 +101,9 @@ test_that("cpp_source lets you set the C++ standard", {
       auto str = "hello_world"s;
       return str;
     }
-    ', tf)
+    ',
+    tf
+  )
   on.exit(unlink(tf))
 
   dll_info <- cpp_source(tf, clean = TRUE, quiet = TRUE, cxx_std = "CXX14")
@@ -97,25 +123,41 @@ test_that("generate_cpp_name works", {
     "foo_2.cpp"
   )
 
-expect_equal(
-  generate_cpp_name("foo.cpp", loaded_dlls = c("foo", "foo_2")),
-  "foo_3.cpp"
+  expect_equal(
+    generate_cpp_name("foo.cpp", loaded_dlls = c("foo", "foo_2")),
+    "foo_3.cpp"
   )
 })
 
 test_that("generate_include_paths handles paths with spaces", {
   if (is_windows()) {
-    mockery::stub(generate_include_paths, "system.file", "C:\\a path with spaces\\cpp11")
-    expect_equal(generate_include_paths("cpp11"), "-I\"C:\\a path with spaces\\cpp11\"")
+    mockery::stub(
+      generate_include_paths,
+      "system.file",
+      "C:\\a path with spaces\\cpp11"
+    )
+    expect_equal(
+      generate_include_paths("cpp11"),
+      "-I\"C:\\a path with spaces\\cpp11\""
+    )
   } else {
-    mockery::stub(generate_include_paths, "system.file", "/a path with spaces/cpp11")
-    expect_equal(generate_include_paths("cpp11"), "-I'/a path with spaces/cpp11'")
+    mockery::stub(
+      generate_include_paths,
+      "system.file",
+      "/a path with spaces/cpp11"
+    )
+    expect_equal(
+      generate_include_paths("cpp11"),
+      "-I'/a path with spaces/cpp11'"
+    )
   }
 })
 
 test_that("check_valid_attributes does not return an error if all registers are correct", {
   expect_error_free(
-    cpp11::cpp_source(clean = TRUE, code = '#include <cpp11.hpp>
+    cpp11::cpp_source(
+      clean = TRUE,
+      code = '#include <cpp11.hpp>
   using namespace cpp11::literals;
   [[cpp11::register]]
   cpp11::list fn() {
@@ -128,9 +170,12 @@ test_that("check_valid_attributes does not return an error if all registers are 
     cpp11::writable::list x;
     x.push_back({"foo"_nm = 1});
     return x;
-  }'))
+  }'
+    )
+  )
   expect_error_free(
-    cpp11::cpp_source(clean = TRUE,
+    cpp11::cpp_source(
+      clean = TRUE,
       code = '#include <cpp11/R.hpp>
               #include <RProgress.h>
 
@@ -145,13 +190,15 @@ test_that("check_valid_attributes does not return an error if all registers are 
                   pb.tick();
                 }
               }
-              ')
+              '
+    )
   )
 })
 
 test_that("check_valid_attributes returns an error if one or more registers is incorrect", {
   expect_error(
-    cpp11::cpp_source(code = '#include <cpp11.hpp>
+    cpp11::cpp_source(
+      code = '#include <cpp11.hpp>
   using namespace cpp11::literals;
   [[cpp11::reg]]
   cpp11::list fn() {
@@ -164,20 +211,26 @@ test_that("check_valid_attributes returns an error if one or more registers is i
     cpp11::writable::list x;
     x.push_back({"foo"_nm = 1});
     return x;
-  }'))
+  }'
+    )
+  )
 
   expect_error(
-    cpp11::cpp_source(code = '#include <cpp11.hpp>
+    cpp11::cpp_source(
+      code = '#include <cpp11.hpp>
   using namespace cpp11::literals;
   [[cpp11::reg]]
   cpp11::list fn() {
     cpp11::writable::list x;
     x.push_back({"foo"_nm = 1});
     return x;
-  }'))
+  }'
+    )
+  )
 
   expect_error(
-    cpp11::cpp_source(code = '#include <cpp11.hpp>
+    cpp11::cpp_source(
+      code = '#include <cpp11.hpp>
   using namespace cpp11::literals;
   [[cpp11::reg]]
   cpp11::list fn() {
@@ -190,9 +243,9 @@ test_that("check_valid_attributes returns an error if one or more registers is i
     cpp11::writable::list x;
     x.push_back({"foo"_nm = 1});
     return x;
-  }'))
-
-
+  }'
+    )
+  )
 
   expect_error(
     cpp11::cpp_source(
@@ -208,7 +261,9 @@ test_that("check_valid_attributes returns an error if one or more registers is i
           pb.tick();
         }
       }
-'))
+'
+    )
+  )
 })
 
 test_that("cpp_source(d) functions work after sourcing file more than once", {
@@ -226,4 +281,25 @@ test_that("cpp_source fails informatively for nonexistent file", {
     cpp_source(i_do_not_exist),
     transform = ~ sub("^.+[.]cpp$", "{NON_EXISTENT_FILEPATH}", .x)
   )
+})
+
+test_that("`cpp11::package` throws expected error on unknown packages", {
+  skip_on_os("solaris")
+  dll_info <- cpp_source(
+    code = '
+    #include "cpp11/function.hpp"
+
+    [[cpp11::register]]
+    SEXP test() {
+      auto pkg = cpp11::package("definitely_not_a_package");
+      return R_NilValue;
+    }
+    ',
+    clean = TRUE
+  )
+  on.exit(dyn.unload(dll_info[["path"]]))
+
+  expect_snapshot(error = TRUE, {
+    test()
+  })
 })

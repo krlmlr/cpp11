@@ -1,5 +1,17 @@
 # cpp11 (development version)
 
+# cpp11 0.5.5
+
+* Fixed an issue where `cpp11::stop()` and `cpp11::warning()` calls with the same template instantiation could cause a crash on some systems (#491, #295).
+
+* `cpp_source()` now works with multiple `file`s (#492).
+
+# cpp11 0.5.4
+
+* Removed non-API usage of `R_NamespaceRegistry`.
+
+* Fixed a bug with `CPP11_USE_FMT` where the input was not being correctly wrapped in `fmt::runtime()`.
+
 # cpp11 0.5.3
 
 * Removed non-API usage of `ATTRIB()` (#481).
