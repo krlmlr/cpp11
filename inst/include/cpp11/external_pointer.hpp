@@ -55,9 +55,8 @@ class external_pointer {
 
   external_pointer(SEXP data) : data_(valid_type(data)) {}
 
-  external_pointer(pointer p, bool use_deleter = true, bool finalize_on_exit = true,
-                   SEXP prot = R_NilValue)
-      : data_(safe[R_MakeExternalPtr]((void*)p, R_NilValue, prot)) {
+  external_pointer(pointer p, bool use_deleter = true, bool finalize_on_exit = true)
+      : data_(safe[R_MakeExternalPtr]((void*)p, R_NilValue, R_NilValue)) {
     if (use_deleter) {
       R_RegisterCFinalizerEx(data_, r_deleter, static_cast<r_bool>(finalize_on_exit));
     }
@@ -67,19 +66,9 @@ class external_pointer {
     data_ = safe[Rf_shallow_duplicate](rhs.data_);
   }
 
-  external_pointer(external_pointer&& rhs) {
-    data_ = rhs.data_;
-    rhs.data_ = R_NilValue;
-  }
+  external_pointer(external_pointer&& rhs) { reset(rhs.release()); }
 
-  external_pointer& operator=(external_pointer&& rhs) noexcept {
-    // This works even if `this == &rhs` because `data_` (a `cpp11::sexp`) handles
-    // the underlying resource.
-    data_ = rhs.data_;
-    // Order matters: first assign, then clear the RHS.
-    rhs.data_ = R_NilValue;
-    return *this;
-  }
+  external_pointer& operator=(external_pointer&& rhs) noexcept { reset(rhs.release()); }
 
   external_pointer& operator=(std::nullptr_t) noexcept { reset(); };
 
