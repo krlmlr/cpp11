@@ -685,6 +685,50 @@ describe("cpp_register", {
     )
   })
 
+  it("includes pkg_types.h if included in src/include", {
+    pkg <- local_package()
+    p <- pkg_path(pkg)
+    dir.create(file.path(p, "src", "include"), recursive = TRUE)
+    file.copy(test_path("single.cpp"), file.path(p, "src", "single.cpp"))
+    writeLines(
+      "#include <sstream>",
+      file.path(p, "src", "include", "testPkg_types.h")
+    )
+    cpp_register(p)
+
+    expect_true(
+      any(
+        grepl(
+          pattern = '#include "include/testPkg_types.h"',
+          x = readLines(file.path(p, "src", "cpp11.cpp")),
+          fixed = TRUE
+        )
+      )
+    )
+  })
+
+  it("includes pkg_types.hpp if included in src/include", {
+    pkg <- local_package()
+    p <- pkg_path(pkg)
+    dir.create(file.path(p, "src", "include"), recursive = TRUE)
+    file.copy(test_path("single.cpp"), file.path(p, "src", "single.cpp"))
+    writeLines(
+      "#include <sstream>",
+      file.path(p, "src", "include", "testPkg_types.hpp")
+    )
+    cpp_register(p)
+
+    expect_true(
+      any(
+        grepl(
+          pattern = '#include "include/testPkg_types.hpp"',
+          x = readLines(file.path(p, "src", "cpp11.cpp")),
+          fixed = TRUE
+        )
+      )
+    )
+  })
+
   it("includes pkg_types.h if included in inst/include", {
     pkg <- local_package()
     p <- pkg_path(pkg)
