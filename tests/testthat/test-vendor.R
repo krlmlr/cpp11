@@ -18,6 +18,25 @@ describe("cpp_vendor", {
     )
   })
 
+  it("vendors into subdir", {
+    pkg <- local_package()
+    p <- pkg_path(pkg)
+
+    cpp_vendor(p, subdir = "src")
+
+    expect_true(file.exists(file.path(p, "src", "cpp11.hpp")))
+    expect_true(file.exists(file.path(p, "src", "cpp11", "declarations.hpp")))
+    expect_false(dir.exists(file.path(p, "inst", "include", "cpp11")))
+  })
+
+  it("errors on a misnamed argument", {
+    pkg <- local_package()
+    expect_error(
+      cpp_vendor(pkg_path(pkg), subdirectory = "src"),
+      "must be empty"
+    )
+  })
+
   it("vendors cpp11", {
     pkg <- local_package()
     p <- pkg_path(pkg)

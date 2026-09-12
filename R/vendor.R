@@ -8,6 +8,12 @@
 #' 'cpp11 version: XYZ' to the top of the files, where XYZ is the version of
 #' cpp11 currently installed on your machine.
 #'
+#' Pass `subdir` to vendor somewhere else. A package that does not want the
+#' headers installed can keep them under `src/`, which leaves nothing of cpp11
+#' in the installed package; the generated `src/cpp11.cpp` reaches them by a
+#' path relative to `src/`, so only that package's own `PKG_CPPFLAGS` needs to
+#' know where they are.
+#'
 #' If you choose to vendor the headers you should _remove_ `LinkingTo:
 #' cpp11` from your DESCRIPTION.
 #'
@@ -16,6 +22,9 @@
 #' code until you run `cpp_vendor()` again.
 #'
 #' @inheritParams cpp_register
+#' @param ... These dots are for future extensions and must be empty.
+#' @param subdir The directory below `path` to vendor into, as a path relative
+#'   to `path`. Defaults to `inst/include`, which installs the headers.
 #' @param date The date recorded in the `vendored on:` header of each vendored
 #'   file. Defaults to the current date; pass a fixed date to make vendoring
 #'   reproducible.
@@ -35,8 +44,16 @@
 #'
 #' # cleanup
 #' unlink(dir, recursive = TRUE)
-cpp_vendor <- function(path = ".", date = Sys.Date(), overwrite = FALSE) {
-  new <- file.path(path, "inst", "include", "cpp11")
+cpp_vendor <- function(
+  path = ".",
+  ...,
+  subdir = file.path("inst", "include"),
+  date = Sys.Date(),
+  overwrite = FALSE
+) {
+  check_dots_empty(...)
+
+  new <- file.path(path, subdir, "cpp11")
 
   if (dir.exists(new)) {
     if (overwrite) {
@@ -83,4 +100,28 @@ cpp_vendor <- function(path = ".", date = Sys.Date(), overwrite = FALSE) {
   }
 
   invisible(new)
+}
+
+# `cpp_vendor()` takes its options after `...`, so they must be named. Anything
+# reaching the dots is a misspelling or a positional argument, and silently
+# ignoring it would vendor to the wrong place. rlang has `check_dots_empty()`;
+# cpp11 depends on nothing, so this is the base equivalent.
+check_dots_empty <- function(...) {
+  dots <- list(...)
+  if (length(dots) == 0) {
+    return(invisible())
+  }
+
+  named <- names(dots)
+  named <- named[nzchar(named)]
+
+  stop(
+    "`...` must be empty.\n",
+    if (length(named) > 0) {
+      paste0(" * Unexpected argument: `", named[[1]], "`")
+    } else {
+      " * Arguments after `path` must be named."
+    },
+    call. = FALSE
+  )
 }
